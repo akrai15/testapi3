@@ -9,7 +9,7 @@ config();
 const app= express();
 
 app.use(cors({
-  origin: 'https://www.maitilabs.org',
+  origin: '*',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: 'Authorization,Content-Type', // Include 'Authorization'
   credentials: true,
