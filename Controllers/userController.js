@@ -6,7 +6,6 @@ import User from "../Model/userModel.js";
 import Otp from "../Model/otpModel.js";
 import Blog from "../Model/addBlog.js";
 import jwt from "jsonwebtoken";
-import axios from "axios";
 
 import Question from "../Model/questionModel.js";
 
@@ -22,7 +21,7 @@ export const signUp = async (req, res) => {
       return res.status(400).json({
         message: "user already exists",
       });
-
+    console.log("otp gen");
     const OTP = otpGenerator.generate(6, {
       digits: true,
       upperCaseAlphabets: false,
@@ -259,34 +258,4 @@ export const googlesignin = async (req, res) => {
     console.error("Error during Google sign-in:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-};
-
-//=========================== Mapping to User region =========================================================//
-
-const getLocation = async (lat, lon) => {
-  try {
-    const response = await axios.get(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
-    );
-    const address = response.data.address;
-    return address.country_code.toUpperCase();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
-};
-
-export const getUserRegion = async (req, res) => {
-  const { lat, lon } = req.body;
-  if (!lat || !lon) {
-    return res
-      .status(400)
-      .json({ error: "Latitude and Longitude are required" });
-  }
-
-  const countryCode = await getLocation(lat, lon);
-  if (!countryCode) {
-    return res.status(500).json({ error: "Failed to get location" });
-  }
-  return res.json({ countryCode });
 };

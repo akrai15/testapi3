@@ -12,7 +12,6 @@ import {
   addQuestion,
   addAnswer,
   googlesignin,
-  getUserRegion,
 } from "../Controllers/userController.js";
 import { uploadImage } from "../Controllers/imageConroller.js";
 import { upload } from "../Middleware/multer.js";
@@ -41,5 +40,4 @@ router.route("/googlesignin").post(googlesignin);
 
 router.route("/file/upload").post(upload.single("file"), uploadImage);
 
-router.route("/getRegion").post(getUserRegion);
 export default router;
