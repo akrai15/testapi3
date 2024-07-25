@@ -8,7 +8,9 @@ import Blog from "../Model/addBlog.js";
 import jwt from "jsonwebtoken";
 
 import Question from "../Model/questionModel.js";
+import { config } from "dotenv";
 
+config();
 //======================================sign up ===========================================================//
 
 export const signUp = async (req, res) => {
@@ -39,14 +41,14 @@ export const signUp = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: "labsmaiti@gmail.com",
-        pass: "kwed qwef ilih grdj",
+        user: "labsmaiti@gmail.com",  //process.env.NODEMAILER_USER
+        pass: "kwed qwef ilih grdj",  //process.env.NODEMAILER_PASS
       },
     });
 
     // Create an email message
     const mailOptions = {
-      from: "labsmaiti@gmail.com",
+      from: "labsmaiti@gmail.com",  //process.env.NODEMAILER_USER
       to: email, // Use the recipient's email address
       subject: "Verification Code",
       text: `Verification Code ${OTP}`,
@@ -257,5 +259,30 @@ export const googlesignin = async (req, res) => {
   } catch (error) {
     console.error("Error during Google sign-in:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const sendEmail = async (req, res) => {
+  try{
+    const {name, email, message} = req.body;
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.NODEMAILER_USER,
+        pass: process.env.NODEMAILER_PASS,
+      },
+    });
+    const mailOptions = {
+      from: process.env.NODEMAILER_USER,
+      to: process.env.OFFICIAL_MAIL,
+      subject: `Contact Form Submitted by ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\nMessage: \n${message}`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).send("Email sent successfully");
+  } catch (err) {
+      res.status(500).send(`Error faced while sending Email \n${err}`);
   }
 };

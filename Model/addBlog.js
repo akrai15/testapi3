@@ -23,7 +23,7 @@ const blogSchema = mongoose.Schema({
   },
   twitter: {
     type: String,
-    required: true,
+    required: false,
   },
 });
 

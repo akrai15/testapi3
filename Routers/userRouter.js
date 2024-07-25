@@ -12,6 +12,7 @@ import {
   addQuestion,
   addAnswer,
   googlesignin,
+  sendEmail,
 } from "../Controllers/userController.js";
 import { uploadImage } from "../Controllers/imageConroller.js";
 import { upload } from "../Middleware/multer.js";
@@ -39,5 +40,7 @@ router.route("/addAnswer/:id").all(verifyAuthentication).post(addAnswer);
 router.route("/googlesignin").post(googlesignin);
 
 router.route("/file/upload").post(upload.single("file"), uploadImage);
+
+router.route("/sendMail").post(sendEmail);
 
 export default router;
