@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const subscriberSchema = mongoose.Schema(
     {
         email: {
-            type: String,
+            type: email,
             required: true,
             unique: true,
             trim: true
