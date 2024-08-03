@@ -19,7 +19,7 @@ userSchema.methods.generateJWT = function () {
 }
 //===============  user schema =========================
 
-  const User= mongoose.model("User",userSchema);
+const User= mongoose.model("User",userSchema);
 
 
 export default User ;

@@ -13,6 +13,9 @@ import {
   addAnswer,
   googlesignin,
   sendEmail,
+  subscribe,
+  unsubscribe,
+  getBlogsByEmail,
 } from "../Controllers/userController.js";
 import { uploadImage } from "../Controllers/imageConroller.js";
 import { upload } from "../Middleware/multer.js";
@@ -42,5 +45,10 @@ router.route("/googlesignin").post(googlesignin);
 router.route("/file/upload").post(upload.single("file"), uploadImage);
 
 router.route("/sendMail").post(sendEmail);
+
+router.route("/getBlogs").get(getBlogsByEmail);
+router.route("/subscribe").post(subscribe);
+router.route("/unsubscribe").delete(unsubscribe);
+
 
 export default router;

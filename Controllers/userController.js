@@ -8,6 +8,7 @@ import Blog from "../Model/addBlog.js";
 import jwt from "jsonwebtoken";
 
 import Question from "../Model/questionModel.js";
+import Subscriber from "../Model/subscriber.js";
 import { config } from "dotenv";
 
 config();
@@ -41,14 +42,14 @@ export const signUp = async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
-        user: "labsmaiti@gmail.com",  //process.env.NODEMAILER_USER
-        pass: "kwed qwef ilih grdj",  //process.env.NODEMAILER_PASS
+        user: "labsmaiti@gmail.com", //process.env.NODEMAILER_USER
+        pass: "kwed qwef ilih grdj", //process.env.NODEMAILER_PASS
       },
     });
 
     // Create an email message
     const mailOptions = {
-      from: "labsmaiti@gmail.com",  //process.env.NODEMAILER_USER
+      from: "labsmaiti@gmail.com", //process.env.NODEMAILER_USER
       to: email, // Use the recipient's email address
       subject: "Verification Code",
       text: `Verification Code ${OTP}`,
@@ -263,8 +264,9 @@ export const googlesignin = async (req, res) => {
 };
 
 export const sendEmail = async (req, res) => {
-  try{
-    const {name, email, message} = req.body;
+  try {
+    const { name, email, message, partner } = req.body;
+
     const transporter = nodemailer.createTransport({
       service: "Gmail",
       auth: {
@@ -274,8 +276,12 @@ export const sendEmail = async (req, res) => {
     });
     const mailOptions = {
       from: process.env.NODEMAILER_USER,
-      to: process.env.OFFICIAL_MAIL,
-      subject: `Contact Form Submitted by ${name}`,
+      to: !partner
+        ? process.env.OFFICIAL_MAIL
+        : ["Aashish@maitilabs.org", "Shryas@maitilabs.org"],
+      subject: `Contact Form Submitted by ${name} ${
+        partner ? "for partnership" : ""
+      }`,
       text: `Name: ${name}\nEmail: ${email}\nMessage: \n${message}`,
     };
 
@@ -283,6 +289,113 @@ export const sendEmail = async (req, res) => {
 
     res.status(200).send("Email sent successfully");
   } catch (err) {
-      res.status(500).send(`Error faced while sending Email \n${err}`);
+    res.status(500).send(`Error faced while sending Email \n${err}`);
+  }
+};
+//getting blogs by email
+export const getBlogsByEmail = async (req, res) => {
+  try {
+    const email = req.query.email;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+
+    const blogs = await Blog.find({ email })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.status(200).json({ blogs });
+  } catch (error) {
+    console.error("Error retrieving blogs:", error);
+    return res.status(500).json({ error: "Error retrieving blogs" });
+  }
+};
+
+
+export const subscribe = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const existingSubscriber = await Subscriber.findOne({ email });
+    if (existingSubscriber) {
+      return res.status(409).json({ message: " Email is already subscribed" });
+    }
+
+    const newSubscriber = new Subscriber({ email });
+    await newSubscriber.save();
+
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.NODEMAILER_USER,
+        pass: process.env.NODEMAILER_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.NODEMAILER_USER,
+      to: email,
+      subject: "Welcome to Vriksh! 🌳",
+      html: `
+        <html>
+        <body>
+            <h1>Welcome to Vriksh!</h1>
+            <p>We are thrilled to have you join our community of eco-conscious individuals dedicated to making the world a greener place.</p>
+            <p>At Vriksh, we believe that the future can't wait. Our mission is to combat climate change by planting trees, which absorb carbon dioxide and release the oxygen we need to live. Together, we can make a significant impact.</p>
+            <h2>Here's what you can expect from us:</h2>
+            <ul>
+                <li><strong>Community Engagement:</strong> Join our community-driven initiatives and partner with local communities and businesses to foster environmental stewardship.</li>
+                <li><strong>Eco-conscious Mission:</strong> Benefit from our expertise in selecting the right tree species and employing effective planting techniques to ensure the long-term health of your trees.</li>
+                <li><strong>Transparency and Accountability:</strong> Receive detailed insights into our tree planting processes and regular updates on the growth and development of the trees we plant together.</li>
+            </ul>
+            <p>Stay tuned for updates, tips on eco-friendly living, and opportunities to get involved.</p>
+            <p>Thank you for subscribing and for your commitment to the environment. Together, we can make a difference—one tree at a time.</p>
+            <p>Warm regards,</p>
+            <p>Vriksh Team</p>
+            <hr>
+            <h3>Follow Us on Social Media:</h3>
+            <p>
+                <a href="https://www.instagram.com/maitilabs">Instagram</a> | 
+                <a href="https://x.com/MaitiLabs">Twitter</a> | 
+                <a href="https://www.linkedin.com/company/maitilabs/">LinkedIn</a>
+            </p>
+            <h3>Contact Us:</h3>
+            <p>Have questions? Feel free to reach out to us at <a href="mailto:labsmaiti@gmail.com">our mail</a>.</p>
+            <div class="footer">
+                <p>Copyright 2024 Vriksh</p>
+                <p>If you no longer wish to receive these emails, you can <a href="${
+                  process.env.REACT_APP_URL
+                }/unsubscribe?email=${encodeURIComponent(
+        email
+      )}" style="color: #cf1111; text-decoration: underline;">unsubscribe here</a>.</p>
+            </div>
+        </body>
+        </html>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).send("Subscription successful. Welcome email sent.");
+  } catch (err) {
+    res.status(500).send(`Error faced while sending Email \n${err}`);
+  }
+};
+
+export const unsubscribe = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const subscriber = await Subscriber.findOne({ email });
+    if (!subscriber) {
+      return res.status(404).send("Email not found");
+    }
+
+    await Subscriber.deleteOne({ email });
+
+    res.status(200).json({ message: "Unsubscribed Successfully" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: `Error faced while unsubscribing \n${err}` });
   }
 };
