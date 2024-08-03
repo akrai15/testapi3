@@ -384,14 +384,19 @@ export const subscribe = async (req, res) => {
 export const unsubscribe = async (req, res) => {
   try {
     const { email } = req.body;
-    const decodedEmail = decodeURIComponent(email);
+    
 
-    const subscriber = await Subscriber.findOne({ decodedEmail });
+    const subscriber = await Subscriber.findOne({ email});
     if (!subscriber) {
       return res.status(404).send("Email not found");
     }
+    else{
+      await Subscriber.deleteOne({email });
+      
 
-    await Subscriber.deleteOne({decodedEmail });
+    }
+
+    
 
     res.status(200).json({ message: "Unsubscribed Successfully" });
   } catch (err) {
