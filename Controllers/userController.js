@@ -153,19 +153,38 @@ export const login = async (req, res) => {
 //====================== get blogs =============================================================//
 export const showBlogs = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Default to page 1 if no page is specified
-    const limit = 5; // Default to 5 blogs per page if no limit is specified
+    // const page = parseInt(req.query.page) || 1; // Default to page 1 if no page is specified
+    // const limit = 5; // Default to 5 blogs per page if no limit is specified
 
-    const skip = (page - 1) * limit;
+    // const skip = (page - 1) * limit;
 
-    const blogs = await Blog.find().skip(skip).limit(limit);
-    console.log("Fetched blogs:", blogs);
+    const blogs = await Blog.find();
+    // console.log("Fetched blogs:", blogs);
     res.status(200).json({ blogs });
   } catch (err) {
     console.error("Error retrieving data:", err);
     return res.status(500).json({ error: "Error retrieving data" });
   }
 };
+
+export const searchBlogs = async (req, res) => {
+  try {
+    const keyword = req.query.keyword || "";
+    
+    const blogs = keyword ? await Blog.find(
+        { $text: { $search: keyword } },
+        { score: { $meta: "textScore" } }
+    )
+    .sort({ score: { $meta: "textScore" } }) : 
+    await Blog.find();
+    
+    return res.status(200).json({ blogs });
+  } catch (err) {
+    console.error("Error searching data: ", err);
+    return res.status(500).json({ error: "Error searching data" });
+  }
+}
+
 //=========================== add blog ========================================================//
 
 export const addBlog = async (req, res) => {
@@ -384,19 +403,13 @@ export const subscribe = async (req, res) => {
 export const unsubscribe = async (req, res) => {
   try {
     const { email } = req.body;
-    
 
-    const subscriber = await Subscriber.findOne({ email});
+    const subscriber = await Subscriber.findOne({ email });
     if (!subscriber) {
       return res.status(404).send("Email not found");
     }
-    else{
-      await Subscriber.deleteOne({email });
-      
 
-    }
-
-    
+    await Subscriber.deleteOne({ email });
 
     res.status(200).json({ message: "Unsubscribed Successfully" });
   } catch (err) {

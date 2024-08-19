@@ -27,6 +27,8 @@ const blogSchema = mongoose.Schema({
   },
 });
 
+blogSchema.index({title: 'text', content: 'text', author: 'text'}); 
+
 const Blog = mongoose.model("Blog", blogSchema);
 
 export default Blog;

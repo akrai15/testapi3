@@ -16,6 +16,7 @@ import {
   subscribe,
   unsubscribe,
   getBlogsByEmail,
+  searchBlogs,
 } from "../Controllers/userController.js";
 import { uploadImage } from "../Controllers/imageConroller.js";
 import { upload } from "../Middleware/multer.js";
@@ -28,6 +29,7 @@ router.route("/api/signup/verify").post(verifyOtp);
 router.route("/api/login").post(login);
 
 router.route("/showBlogs").get(showBlogs);
+router.route("/searchBlog").get(searchBlogs);
 
 router.route("/addBlog").all(verifyAuthentication).post(addBlog);
 
