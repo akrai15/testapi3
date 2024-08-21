@@ -17,6 +17,9 @@ import {
   unsubscribe,
   getBlogsByEmail,
   searchBlogs,
+  passwordreset,
+  verifypasswordreset
+
 } from "../Controllers/userController.js";
 import { uploadImage } from "../Controllers/imageConroller.js";
 import { upload } from "../Middleware/multer.js";
@@ -51,6 +54,9 @@ router.route("/sendMail").post(sendEmail);
 router.route("/getBlogs").get(getBlogsByEmail);
 router.route("/subscribe").post(subscribe);
 router.route("/unsubscribe").delete(unsubscribe);
+
+router.route("/sendresetotp").post(passwordreset);
+router.route("/verifyresetotp").post(verifypasswordreset);
 
 
 export default router;
