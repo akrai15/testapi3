@@ -18,7 +18,8 @@ import {
   getBlogsByEmail,
   searchBlogs,
   passwordreset,
-  verifypasswordreset
+  verifypasswordreset,
+  applyIntern
 
 } from "../Controllers/userController.js";
 import { uploadImage } from "../Controllers/imageConroller.js";
@@ -57,6 +58,8 @@ router.route("/unsubscribe").delete(unsubscribe);
 
 router.route("/sendresetotp").post(passwordreset);
 router.route("/verifyresetotp").post(verifypasswordreset);
+
+router.route("/applyIntern").post(applyIntern);
 
 
 export default router;

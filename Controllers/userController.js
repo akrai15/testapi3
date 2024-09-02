@@ -510,3 +510,59 @@ export const verifypasswordreset = async (req, res) => {
 
 
 };
+
+export const applyIntern = async (req, res) => {
+  try {
+    const { name, email, role } = req.body;
+
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: process.env.NODEMAILER_USER,
+        pass: process.env.NODEMAILER_PASS,
+      },
+    });
+
+    // Define Google Doc links for each role
+    const taskLinks = {
+      "Content Intern": "https://docs.google.com/document/d/1ip34WXfaoFreozv99Uaid180624qzKSLizw3KQei8z8/edit",
+      
+      "Product Intern": "https://docs.google.com/document/d/1ck7VFIDPzWe4oIEpi1CpM6l-OAO1bigwS_X-s_bsw1A/edit",
+      "Marketing Intern": "https://docs.google.com/document/d/1Qs4nJXhNa51YOj1YPIfhMZXZM7818eCqxYdoG801t4c/edit",
+      "Video Editor Intern": "https://drive.google.com/drive/folders/1pYyHum7t0tCDDcvC_mzGWE6tuFhSC6ux",
+      
+      "Software Intern": "https://docs.google.com/document/d/1sljlua87ssKnJx_s8u_C1N0Z-mludt9BpDG-MtBMBao/edit",
+    };
+
+    const taskLink = taskLinks[role];
+
+    const mailOptions = {
+      from: process.env.NODEMAILER_USER,
+      to: email,
+      subject: `Application Received for ${role}`,
+      text: `Thank you for your interest in working with us.
+
+Attached in the link is your task to get into the team: ${taskLink}
+
+You have to complete the task for the position you are applying for and submit the same within the next 2 days from tomorrow.
+
+Please send your completed assignment and resume to labsmaiti@gmail.com within 2 days. Make sure to Cc: shryasbhurat.ae19@rvce.edu.in and aashishyadav.ae19@rvce.edu.in.
+
+All the best!
+
+Regards,
+Maiti Labs`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).send("Application received and email sent successfully");
+  } catch (err) {
+    console.error("Error sending email: ", err);
+    res.status(500).send("An error occurred while sending the email.");
+  }
+};
+
+
+
+
